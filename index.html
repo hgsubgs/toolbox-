@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工具箱</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .toolbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tool-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tool-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .tool-name {
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .tool-description {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .tool-form {
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>工具箱</h1>
+        <div class="toolbox-grid">
+            <div class="tool-card" onclick="openTool('calculator')">
+                <div class="tool-icon">🧮</div>
+                <div class="tool-name">计算器</div>
+                <div class="tool-description">基本数学运算</div>
+            </div>
+            
+            <div class="tool-card" onclick="openTool('converter')">
+                <div class="tool-icon">🔄</div>
+                <div class="tool-name">单位转换</div>
+                <div class="tool-description">长度、重量、温度等</div>
+            </div>
+            
+            <div class="tool-card" onclick="openTool('text')">
+                <div class="tool-icon">📝</div>
+                <div class="tool-name">文本工具</div>
+                <div class="tool-description">文本处理和编辑</div>
+            </div>
+            
+            <div class="tool-card" onclick="openTool('color')">
+                <div class="tool-icon">🎨</div>
+                <div class="tool-name">颜色选择器</div>
+                <div class="tool-description">选择和预览颜色</div>
+            </div>
+            
+            <div class="tool-card" onclick="openTool('password')">
+                <div class="tool-icon">🔒</div>
+                <div class="tool-name">密码生成器</div>
+                <div class="tool-description">生成安全密码</div>
+            </div>
+            
+            <div class="tool-card" onclick="openTool('timer')">
+                <div class="tool-icon">⏱️</div>
+                <div class="tool-name">计时器</div>
+                <div class="tool-description">定时提醒功能</div>
+            </div>
+            
+            <div class="tool-card" onclick="openTool('decimal')">
+                <div class="tool-icon">🔐</div>
+                <div class="tool-name">文本加密/解密</div>
+                <div class="tool-description">文本与十进制转换</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模态框 -->
+    <div id="toolModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">工具</h2>
+            <div id="toolContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 工具功能实现
+        function openTool(toolName) {
+            const modal = document.getElementById('toolModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('toolContent');
+            
+            switch(toolName) {
+                case 'calculator':
+                    title.textContent = '计算器';
+                    content.innerHTML = `
+                        <div class="tool-form">
+                            <div class="form-group">
+                                <label for="num1">第一个数字:</label>
+                                <input type="number" id="num1" placeholder="输入第一个数字">
+                            </div>
+                            <div class="form-group">
+                                <label for="operator">运算符:</label>
+                                <select id="operator">
+                                    <option value="+">+</option>
+                                    <option value="-">-</option>
+                                    <option value="*">*</option>
+                                    <option value="/">/</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="num2">第二个数字:</label>
+                                <input type="number" id="num2" placeholder="输入第二个数字">
+                            </div>
+                            <button onclick="calculate()">计算</button>
+                            <div id="result" style="margin-top: 15px; font-weight: bold;"></div>
+                        </div>
+                    `;
+                    break;
+                case 'converter':
+                    title.textContent = '单位转换';
+                    content.innerHTML = `
+                        <div class="tool-form">
+                            <div class="form-group">
+                                <label for="convertValue">数值:</label>
+                                <input type="number" id="convertValue" placeholder="输入数值">
+                            </div>
+                            <div class="form-group">
+                                <label for="fromUnit">从:</label>
+                                <select id="fromUnit">
+                                    <option value="cm">厘米</option>
+                                    <option value="m">米</option>
+                                    <option value="km">千米</option>
+                                    <option value="inch">英寸</option>
+                                    <option value="foot">英尺</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="toUnit">到:</label>
+                                <select id="toUnit">
+                                    <option value="cm">厘米</option>
+                                    <option value="m">米</option>
+                                    <option value="km">千米</option>
+                                    <option value="inch">英寸</option>
+                                    <option value="foot">英尺</option>
+                                </select>
+                            </div>
+                            <button onclick="convertUnits()">转换</button>
+                            <div id="convertResult" style="margin-top: 15px; font-weight: bold;"></div>
+                        </div>
+                    `;
+                    break;
+                case 'text':
+                    title.textContent = '文本工具';
+                    content.innerHTML = `
+                        <div class="tool-form">
+                            <div class="form-group">
+                                <label for="textInput">输入文本:</label>
+                                <textarea id="textInput" rows="4" placeholder="输入或粘贴文本"></textarea>
+                            </div>
+                            <button onclick="countWords()">统计字数</button>
+                            <button onclick="countCharacters()">统计字符数</button>
+                            <button onclick="toLowerCase()">转小写</button>
+                            <button onclick="toUpperCase()">转大写</button>
+                            <div id="textResult" style="margin-top: 15px; font-weight: bold;"></div>
+                        </div>
+                    `;
+                    break;
+                case 'color':
+                    title.textContent = '颜色选择器';
+                    content.innerHTML = `
+                        <div class="tool-form">
+                            <div class="form-group">
+                                <label for="colorPicker">选择颜色:</label>
+                                <input type="color" id="colorPicker" value="#007bff">
+                            </div>
+                            <div class="form-group">
+                                <label for="colorValue">颜色值:</label>
+                                <input type="text" id="colorValue" value="#007bff" onchange="updateColorPicker()">
+                            </div>
+                            <div id="colorPreview" style="width: 100%; height: 100px; background-color: #007bff; margin-top: 15px; border: 1px solid #ccc;"></div>
+                            <button onclick="copyColor()">复制颜色值</button>
+                        </div>
+                    `;
+                    document.getElementById('colorPicker').addEventListener('input', updateColorValue);
+                    updateColorPreview();
+                    break;
+                case 'password':
+                    title.textContent = '密码生成器';
+                    content.innerHTML = `
+                        <div class="tool-form">
+                            <div class="form-group">
+                                <label for="passwordLength">密码长度:</label>
+                                <input type="number" id="passwordLength" value="12" min="4" max="50">
+                            </div>
+                            <div class="form-group">
+                                <input type="checkbox" id="includeUppercase" checked> <label for="includeUppercase">包含大写字母</label><br>
+                                <input type="checkbox" id="includeLowercase" checked> <label for="includeLowercase">包含小写字母</label><br>
+                                <input type="checkbox" id="includeNumbers" checked> <label for="includeNumbers">包含数字</label><br>
+                                <input type="checkbox" id="includeSymbols" checked> <label for="includeSymbols">包含符号</label>
+                            </div>
+                            <button onclick="generatePassword()">生成密码</button>
+                            <div id="generatedPassword" style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; font-family: monospace; word-break: break-all;"></div>
+                            <button onclick="copyPassword()">复制密码</button>
+                        </div>
+                    `;
+                    break;
+                case 'timer':
+                    title.textContent = '计时器';
+                    content.innerHTML = `
+                        <div class="tool-form">
+                            <div class="form-group">
+                                <label for="minutes">分钟:</label>
+                                <input type="number" id="minutes" value="5" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="seconds">秒:</label>
+                                <input type="number" id="seconds" value="0" min="0" max="59">
+                            </div>
+                            <button onclick="startTimer()">开始</button>
+                            <button onclick="pauseTimer()">暂停</button>
+                            <button onclick="resetTimer()">重置</button>
+                            <div id="timerDisplay" style="font-size: 24px; margin-top: 15px; text-align: center;">05:00</div>
+                            <div id="timerStatus" style="text-align: center; margin-top: 10px;"></div>
+                        </div>
+                    `;
+                    break;
+                case 'decimal':
+                    title.textContent = '文本加密/解密';
+                    content.innerHTML = `
+                        <div class="tool-form">
+                            <div class="form-group">
+                                <label for="decimalText">输入文本:</label>
+                                <textarea id="decimalText" rows="4" placeholder="输入要加密或解密的文本"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="decimalPassword">密码:</label>
+                                <input type="password" id="decimalPassword" placeholder="输入密码">
+                            </div>
+                            <button onclick="encryptToDecimal()">加密为十进制</button>
+                            <button onclick="decryptFromDecimal()">解密为文本</button>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="decimalResult">结果:</label>
+                                <textarea id="decimalResult" rows="4" placeholder="加密或解密结果" readonly></textarea>
+                            </div>
+                            <button onclick="copyDecimalResult()">复制结果</button>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            modal.style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('toolModal').style.display = 'none';
+        }
+        
+        // 计算器功能
+        function calculate() {
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            const operator = document.getElementById('operator').value;
+            let result;
+            
+            if (isNaN(num1) || isNaN(num2)) {
+                document.getElementById('result').textContent = '请输入有效数字';
+                return;
+            }
+            
+            switch(operator) {
+                case '+':
+                    result = num1 + num2;
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    break;
+                case '/':
+                    if (num2 === 0) {
+                        document.getElementById('result').textContent = '不能除以零';
+                        return;
+                    }
+                    result = num1 / num2;
+                    break;
+            }
+            
+            document.getElementById('result').textContent = `结果: ${result}`;
+        }
+        
+        // 单位转换功能
+        function convertUnits() {
+            const value = parseFloat(document.getElementById('convertValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            
+            if (isNaN(value)) {
+                document.getElementById('convertResult').textContent = '请输入有效数值';
+                return;
+            }
+            
+            // 基于厘米的转换
+            let valueInCm;
+            switch(fromUnit) {
+                case 'cm': valueInCm = value; break;
+                case 'm': valueInCm = value * 100; break;
+                case 'km': valueInCm = value * 100000; break;
+                case 'inch': valueInCm = value * 2.54; break;
+                case 'foot': valueInCm = value * 30.48; break;
+            }
+            
+            let result;
+            switch(toUnit) {
+                case 'cm': result = valueInCm; break;
+                case 'm': result = valueInCm / 100; break;
+                case 'km': result = valueInCm / 100000; break;
+                case 'inch': result = valueInCm / 2.54; break;
+                case 'foot': result = valueInCm / 30.48; break;
+            }
+            
+            document.getElementById('convertResult').textContent = `${value} ${fromUnit} = ${result.toFixed(4)} ${toUnit}`;
+        }
+        
+        // 文本工具功能
+        function countWords() {
+            const text = document.getElementById('textInput').value;
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            document.getElementById('textResult').textContent = `字数: ${words}`;
+        }
+        
+        function countCharacters() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('textResult').textContent = `字符数: ${text.length}`;
+        }
+        
+        function toLowerCase() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('textInput').value = text.toLowerCase();
+        }
+        
+        function toUpperCase() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('textInput').value = text.toUpperCase();
+        }
+        
+        // 颜色选择器功能
+        function updateColorValue() {
+            const colorPicker = document.getElementById('colorPicker');
+            const colorValue = document.getElementById('colorValue');
+            colorValue.value = colorPicker.value;
+            updateColorPreview();
+        }
+        
+        function updateColorValue() {
+            const colorPicker = document.getElementById('colorPicker');
+            const colorValue = document.getElementById('colorValue');
+            colorValue.value = colorPicker.value;
+            updateColorPreview();
+        }
+        
+        function updateColorPreview() {
+            const colorValue = document.getElementById('colorValue').value;
+            const colorPreview = document.getElementById('colorPreview');
+            colorPreview.style.backgroundColor = colorValue;
+        }
+        
+        function updateColorPicker() {
+            const colorPicker = document.getElementById('colorPicker');
+            const colorValue = document.getElementById('colorValue').value;
+            colorPicker.value = colorValue;
+            updateColorPreview();
+        }
+        
+        function copyColor() {
+            const colorValue = document.getElementById('colorValue').value;
+            navigator.clipboard.writeText(colorValue).then(() => {
+                alert('颜色值已复制到剪贴板');
+            });
+        }
+        
+        // 密码生成器功能
+        let password = '';
+        
+        function generatePassword() {
+            const length = parseInt(document.getElementById('passwordLength').value);
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeLowercase = document.getElementById('includeLowercase').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+            
+            if (length < 4) {
+                alert('密码长度至少为4位');
+                return;
+            }
+            
+            let charset = '';
+            if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (includeNumbers) charset += '0123456789';
+            if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            if (charset === '') {
+                alert('至少选择一种字符类型');
+                return;
+            }
+            
+            password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                password += charset[randomIndex];
+            }
+            
+            document.getElementById('generatedPassword').textContent = password;
+        }
+        
+        function copyPassword() {
+            if (password) {
+                navigator.clipboard.writeText(password).then(() => {
+                    alert('密码已复制到剪贴板');
+                });
+            } else {
+                alert('请先生成密码');
+            }
+        }
+        
+        // 计时器功能
+        let timerInterval;
+        let totalSeconds = 0;
+        let isRunning = false;
+        
+        function startTimer() {
+            if (isRunning) return;
+            
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+            
+            if (isNaN(minutes) || isNaN(seconds) || minutes < 0 || seconds < 0) {
+                alert('请输入有效的分钟和秒数');
+                return;
+            }
+            
+            totalSeconds = minutes * 60 + seconds;
+            isRunning = true;
+            document.getElementById('timerStatus').textContent = '运行中...';
+            
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                updateTimerDisplay();
+                
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    document.getElementById('timerStatus').textContent = '时间到！';
+                    // 播放提醒音
+                    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFd2xqZ2VjYF1bWVhXVlVUU1JQT05MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAA==');
+                    audio.play().catch(e => console.log('音频播放失败:', e));
+                }
+            }, 1000);
+        }
+        
+        function pauseTimer() {
+            if (!isRunning) return;
+            
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.getElementById('timerStatus').textContent = '已暂停';
+        }
+        
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            totalSeconds = 0;
+            document.getElementById('minutes').value = 5;
+            document.getElementById('seconds').value = 0;
+            updateTimerDisplay();
+            document.getElementById('timerStatus').textContent = '';
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const display = document.getElementById('timerDisplay');
+            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('toolModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 初始化计时器显示
+        updateTimerDisplay();
+        
+        // 文本加密/解密功能
+        function encryptToDecimal() {
+            const inputText = document.getElementById('decimalText').value;
+            const password = document.getElementById('decimalPassword').value;
+            
+            if (!inputText) {
+                alert('请输入要加密的文本');
+                return;
+            }
+            
+            let decimalValues = [];
+            if (password) {
+                // 使用密码生成一个偏移量
+                let passwordSum = 0;
+                for (let i = 0; i < password.length; i++) {
+                    passwordSum += password.charCodeAt(i);
+                }
+                
+                for (let i = 0; i < inputText.length; i++) {
+                    // 使用密码偏移量对字符码进行变换
+                    const charCode = inputText.charCodeAt(i);
+                    const encryptedCharCode = charCode + passwordSum;
+                    decimalValues.push(encryptedCharCode);
+                }
+            } else {
+                // 没有密码时，直接转换为字符编码
+                for (let i = 0; i < inputText.length; i++) {
+                    decimalValues.push(inputText.charCodeAt(i));
+                }
+            }
+            
+            document.getElementById('decimalResult').value = decimalValues.join(' ');
+        }
+        
+        function decryptFromDecimal() {
+            const decimalInput = document.getElementById('decimalText').value;
+            const password = document.getElementById('decimalPassword').value;
+            
+            if (!decimalInput) {
+                alert('请输入要解密的十进制数值');
+                return;
+            }
+            
+            try {
+                const decimalValues = decimalInput.split(/\s+/).map(item => parseInt(item.trim()));
+                const validDecimals = decimalValues.filter(val => !isNaN(val));
+                
+                if (validDecimals.length !== decimalValues.length) {
+                    alert('包含无效的十进制数值');
+                    return;
+                }
+                
+                let resultText = '';
+                if (password) {
+                    // 使用密码生成相同的偏移量
+                    let passwordSum = 0;
+                    for (let i = 0; i < password.length; i++) {
+                        passwordSum += password.charCodeAt(i);
+                    }
+                    
+                    for (let i = 0; i < validDecimals.length; i++) {
+                        // 通过减去密码偏移量来解密
+                        const decryptedCharCode = validDecimals[i] - passwordSum;
+                        if (decryptedCharCode < 0 || decryptedCharCode > 1114111) {
+                            alert('解密失败，可能是密码错误或数据已损坏');
+                            return;
+                        }
+                        resultText += String.fromCharCode(decryptedCharCode);
+                    }
+                } else {
+                    // 没有密码时，直接转换为字符
+                    for (let i = 0; i < validDecimals.length; i++) {
+                        if (validDecimals[i] < 0 || validDecimals[i] > 1114111) {
+                            alert('解密失败，数据可能已损坏');
+                            return;
+                        }
+                        resultText += String.fromCharCode(validDecimals[i]);
+                    }
+                }
+                
+                document.getElementById('decimalResult').value = resultText;
+            } catch (e) {
+                alert('解密过程中出现错误，请检查输入的十进制数值或密码');
+            }
+        }
+        
+        function copyDecimalResult() {
+            const resultArea = document.getElementById('decimalResult');
+            if (resultArea.value) {
+                resultArea.select();
+                document.execCommand('copy');
+                alert('结果已复制到剪贴板');
+            } else {
+                alert('没有可复制的结果');
+            }
+        }
+    </script>
+</body>
+</html>
